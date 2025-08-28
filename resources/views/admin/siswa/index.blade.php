@@ -7,6 +7,9 @@
     <div class="flex flex-col sm:flex-row justify-between items-center">
         <h3 class="text-gray-700 text-3xl font-medium">Data Siswa</h3>
         <div class="flex space-x-2 mt-4 sm:mt-0">
+            <a href="{{ route('admin.siswa.export') }}" class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800">
+                Export Excel
+            </a>
             <button @click="isImportModalOpen = true" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                 Impor Siswa
             </button>

@@ -6,12 +6,18 @@
 <div x-data="guruCrud()">
     <div class="flex flex-col sm:flex-row justify-between items-center">
         <h3 class="text-gray-700 text-3xl font-medium">Data Guru</h3>
-        <button @click="openModal()" class="mt-4 sm:mt-0 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
-            Tambah Guru
-        </button>
+        <div class="flex space-x-2 mt-4 sm:mt-0">
+            <button @click="isImportModalOpen = true" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                Impor Guru
+            </button>
+            <button @click="openModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                Tambah Guru
+            </button>
+        </div>
     </div>
     
     <div x-show="successMessage" x-text="successMessage" x-transition class="mt-4 p-4 bg-green-100 text-green-700 border border-green-400 rounded-md"></div>
+    <div x-show="errorMessage" x-text="errorMessage" x-transition class="mt-4 p-4 bg-red-100 text-red-700 border border-red-400 rounded-md"></div>
 
     <!-- Form Filter dan Pagination (dengan Live Search) -->
     <div class="mt-6 bg-white p-4 rounded-md shadow-sm border border-gray-200">
@@ -85,7 +91,7 @@
         {{ $gurus->links() }}
     </div>
 
-    <!-- Modal Form -->
+    <!-- Modal Form Tambah/Edit -->
     <div x-show="isModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
         <div @click="closeModal()" class="fixed inset-0 bg-gray-900 bg-opacity-75"></div>
         <div class="relative flex flex-col w-full max-w-lg bg-white rounded-2xl shadow-xl" style="max-height: 90vh;">
@@ -96,41 +102,13 @@
             <div class="flex-grow p-6 overflow-y-auto">
                 <form id="guruForm" @submit.prevent="saveGuru()">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="md:col-span-2">
-                            <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                            <input type="text" x-model="formData.name" id="name" class="mt-1 block w-full rounded-md" required>
-                            <span x-show="errors.name" x-text="errors.name ? errors.name[0] : ''" class="text-red-500 text-xs mt-1"></span>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" x-model="formData.email" id="email" class="mt-1 block w-full rounded-md" required>
-                            <span x-show="errors.email" x-text="errors.email ? errors.email[0] : ''" class="text-red-500 text-xs mt-1"></span>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                            <input type="password" x-model="formData.password" id="password" class="mt-1 block w-full rounded-md" :required="!isEditMode">
-                            <small class="text-gray-500" x-show="isEditMode">Kosongkan jika tidak ingin mengubah password.</small>
-                            <span x-show="errors.password" x-text="errors.password ? errors.password[0] : ''" class="text-red-500 text-xs mt-1"></span>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="nip" class="block text-sm font-medium text-gray-700">NIP (Opsional)</label>
-                            <input type="text" x-model="formData.nip" id="nip" class="mt-1 block w-full rounded-md">
-                            <span x-show="errors.nip" x-text="errors.nip ? errors.nip[0] : ''" class="text-red-500 text-xs mt-1"></span>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="no_telepon" class="block text-sm font-medium text-gray-700">No. Telepon</label>
-                            <input type="text" x-model="formData.no_telepon" id="no_telepon" class="mt-1 block w-full rounded-md">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
-                            <textarea x-model="formData.alamat" id="alamat" rows="3" class="mt-1 block w-full rounded-md"></textarea>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="photo" class="block text-sm font-medium text-gray-700">Foto</label>
-                            <input type="file" id="photo" @change="handleFileSelect" class="mt-1 block w-full text-sm">
-                            <template x-if="photoPreview"><img :src="photoPreview" class="mt-4 h-24 w-24 rounded-full object-cover"></template>
-                            <span x-show="errors.photo" x-text="errors.photo ? errors.photo[0] : ''" class="text-red-500 text-xs mt-1"></span>
-                        </div>
+                        <div class="md:col-span-2"><label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label><input type="text" x-model="formData.name" id="name" class="mt-1 block w-full rounded-md" required><span x-show="errors.name" x-text="errors.name ? errors.name[0] : ''" class="text-red-500 text-xs mt-1"></span></div>
+                        <div class="md:col-span-2"><label for="email" class="block text-sm font-medium text-gray-700">Email</label><input type="email" x-model="formData.email" id="email" class="mt-1 block w-full rounded-md" required><span x-show="errors.email" x-text="errors.email ? errors.email[0] : ''" class="text-red-500 text-xs mt-1"></span></div>
+                        <div class="md:col-span-2"><label for="password" class="block text-sm font-medium text-gray-700">Password</label><input type="password" x-model="formData.password" id="password" class="mt-1 block w-full rounded-md" :required="!isEditMode"><small class="text-gray-500" x-show="isEditMode">Kosongkan jika tidak ingin mengubah password.</small><span x-show="errors.password" x-text="errors.password ? errors.password[0] : ''" class="text-red-500 text-xs mt-1"></span></div>
+                        <div class="md:col-span-2"><label for="nip" class="block text-sm font-medium text-gray-700">NIP (Opsional)</label><input type="text" x-model="formData.nip" id="nip" class="mt-1 block w-full rounded-md"><span x-show="errors.nip" x-text="errors.nip ? errors.nip[0] : ''" class="text-red-500 text-xs mt-1"></span></div>
+                        <div class="md:col-span-2"><label for="no_telepon" class="block text-sm font-medium text-gray-700">No. Telepon</label><input type="text" x-model="formData.no_telepon" id="no_telepon" class="mt-1 block w-full rounded-md"></div>
+                        <div class="md:col-span-2"><label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label><textarea x-model="formData.alamat" id="alamat" rows="3" class="mt-1 block w-full rounded-md"></textarea></div>
+                        <div class="md:col-span-2"><label for="photo" class="block text-sm font-medium text-gray-700">Foto</label><input type="file" id="photo" @change="handleFileSelect" class="mt-1 block w-full text-sm"><template x-if="photoPreview"><img :src="photoPreview" class="mt-4 h-24 w-24 rounded-full object-cover"></template><span x-show="errors.photo" x-text="errors.photo ? errors.photo[0] : ''" class="text-red-500 text-xs mt-1"></span></div>
                     </div>
                 </form>
             </div>
@@ -138,6 +116,32 @@
                 <button type="button" @click="closeModal()" class="rounded-md border bg-white py-2 px-4 text-sm">Batal</button>
                 <button type="submit" form="guruForm" class="rounded-md border bg-indigo-600 py-2 px-4 text-sm text-white">Simpan</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Import -->
+    <div x-show="isImportModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div @click="isImportModalOpen = false" class="fixed inset-0 bg-gray-900 bg-opacity-75"></div>
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-xl">
+            <form @submit.prevent="saveImport()">
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Impor Data Guru</h3>
+                    <div class="mt-4">
+                        <label for="import_file" class="block text-sm font-medium text-gray-700">Pilih File Excel</label>
+                        <input type="file" id="import_file" @change="importFile = $event.target.files[0]" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" required>
+                        <a href="{{ route('admin.guru.template') }}" class="text-xs text-blue-600 hover:underline mt-1">Unduh Template Excel</a>
+                    </div>
+                    <ul x-show="importErrors.length > 0" class="mt-4 list-disc list-inside text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                        <template x-for="error in importErrors" :key="error">
+                            <li x-text="error"></li>
+                        </template>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
+                    <button type="button" @click="isImportModalOpen = false" class="rounded-md border bg-white py-2 px-4 text-sm">Batal</button>
+                    <button type="submit" class="rounded-md border bg-green-600 py-2 px-4 text-sm text-white">Impor</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -162,14 +166,18 @@
     function guruCrud() {
         return {
             isModalOpen: false,
+            isImportModalOpen: false,
             isDeleteModalOpen: false,
             guruIdToDelete: null,
             isEditMode: false,
             successMessage: '',
+            errorMessage: '',
             formData: {},
             errors: {},
             photoPreview: null,
             photoFile: null,
+            importFile: null,
+            importErrors: [],
             
             init() { this.resetForm(); },
             handleFileSelect(event) { if (event.target.files.length) { this.photoFile = event.target.files[0]; this.photoPreview = URL.createObjectURL(this.photoFile); } },
@@ -189,7 +197,7 @@
                 this.isEditMode = true; this.isModalOpen = true;
             },
             async saveGuru() {
-                this.errors = {}; // Kosongkan error sebelum submit
+                this.errors = {};
                 let formPayload = new FormData();
                 for (const key in this.formData) { if (this.formData[key] !== null) { formPayload.append(key, this.formData[key]); } }
                 if (this.photoFile) { formPayload.append('photo', this.photoFile); }
@@ -211,6 +219,26 @@
                 } else { 
                     console.error('An error occurred');
                     alert('Terjadi kesalahan pada server.');
+                }
+            },
+            async saveImport() {
+                this.importErrors = [];
+                let formPayload = new FormData();
+                formPayload.append('file', this.importFile);
+
+                const response = await fetch('{{ route("admin.guru.import") }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                    body: formPayload
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    window.location.reload();
+                } else if (response.status === 422) {
+                    this.importErrors = result.errors;
+                } else {
+                    this.errorMessage = result.message || 'Terjadi kesalahan saat impor.';
                 }
             },
             openDeleteModal(id) { this.guruIdToDelete = id; this.isDeleteModalOpen = true; },

@@ -48,8 +48,13 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="self-end">
-                    <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Filter</button>
+                <div class="self-end flex space-x-2">
+                    <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Filter</button>
+                    @if(request()->has('bulan'))
+                    <a href="{{ route('admin.rekap.laporan.excel', request()->query()) }}" target="_blank" class="w-full flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                        Excel
+                    </a>
+                    @endif
                 </div>
             </div>
         </form>

@@ -14,20 +14,11 @@
                     <input type="month" name="bulan" id="bulan" value="{{ request('bulan', now()->format('Y-m')) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
                  <div>
-                    <label for="guru_id" class="text-sm">Guru</label>
+                    <label for="guru_id" class="text-sm">Guru Mapel</label>
                     <select name="guru_id" id="guru_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         <option value="">Pilih Guru</option>
                         @foreach($gurus as $guru)
                             <option value="{{ $guru->id }}" {{ request('guru_id') == $guru->id ? 'selected' : '' }}>{{ $guru->user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="jurusan_id" class="text-sm">Jurusan</label>
-                    <select name="jurusan_id" id="jurusan_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        <option value="">Semua Jurusan</option>
-                        @foreach($jurusans as $jurusan)
-                            <option value="{{ $jurusan->id }}" {{ request('jurusan_id') == $jurusan->id ? 'selected' : '' }}>{{ $jurusan->nama_jurusan }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -41,6 +32,15 @@
                     </select>
                 </div>
                 <div>
+                    <label for="jurusan_id" class="text-sm">Jurusan (Opsional)</label>
+                    <select name="jurusan_id" id="jurusan_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option value="">Semua Jurusan</option>
+                        @foreach($jurusans as $jurusan)
+                            <option value="{{ $jurusan->id }}" {{ request('jurusan_id') == $jurusan->id ? 'selected' : '' }}>{{ $jurusan->nama_jurusan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label for="perPage" class="text-sm">Per Halaman</label>
                     <select name="perPage" id="perPage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         @foreach(['10', '25', '50', '100'] as $val)
@@ -48,8 +48,13 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="self-end">
-                    <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Tampilkan Laporan</button>
+                <div class="self-end flex space-x-2">
+                    <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Filter</button>
+                    @if(request()->filled(['bulan', 'guru_id', 'mapel_id']))
+                    <a href="{{ route('admin.rekap.perguru.excel', request()->query()) }}" target="_blank" class="w-full flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                        Excel
+                    </a>
+                    @endif
                 </div>
             </div>
         </form>

@@ -21,7 +21,7 @@
     </style>
 </head>
 <body class="bg-gray-100 font-sans" x-data="profileHandler()">
-    <div x-data="{ isSidebarOpen: window.innerWidth >= 1024 }" @resize.window="isSidebarOpen = window.innerWidth >= 1024" class="flex h-screen bg-gray-200">
+    <div x-data="{ isSidebarOpen: window.innerWidth >= 1024 }" @resize.window="isSidebarOpen = window.innerWidth >= 1024">
         <!-- Sidebar -->
         <aside 
             :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
@@ -29,7 +29,10 @@
             
             <div class="flex items-center justify-center mt-8">
                 <div class="flex items-center">
-                    <span class="text-white text-2xl mx-2 font-semibold">Presensi App</span>
+                    @if(isset($sekolahSetting) && $sekolahSetting->logo)
+                        <img class="h-10 w-10 mr-2 rounded-md object-contain" src="{{ asset('storage/' . $sekolahSetting->logo) }}" alt="Logo Sekolah">
+                    @endif
+                    <span class="text-white text-2xl font-semibold">Sirekap App</span>
                 </div>
             </div>
             
@@ -73,6 +76,20 @@
                         <a class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-100" href="{{ route('admin.gurumatapelajaran.index') }}">Guru Mata Pelajaran</a>
                     </div>
                 </div>
+                
+                <!-- Menu Nilai -->
+                <div>
+                    <button @click="open = open === 'nilai' ? '' : 'nilai'" class="w-full flex justify-between items-center mt-4 py-2 px-6 text-gray-400 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 focus:outline-none">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <span class="mx-3">Nilai</span>
+                        </div>
+                        <svg :class="{'rotate-180': open === 'nilai'}" class="h-5 w-5 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    <div x-show="open === 'nilai'" x-cloak class="pl-10 bg-gray-800">
+                        <a class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-100" href="{{ route('admin.inputnilai.index') }}">Input Nilai</a>
+                    </div>
+                </div>
 
                 <!-- Menu Laporan -->
                 <div>
@@ -88,13 +105,27 @@
                         <a class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-100" href="{{ route('admin.rekap.perguru.index') }}">Rekap Laporan Perguru</a>
                     </div>
                 </div>
+
+                <!-- Menu Utilitas -->
+                <div>
+                    <button @click="open = open === 'utilitas' ? '' : 'utilitas'" class="w-full flex justify-between items-center mt-4 py-2 px-6 text-gray-400 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 focus:outline-none">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                            <span class="mx-3">Utilitas</span>
+                        </div>
+                        <svg :class="{'rotate-180': open === 'utilitas'}" class="h-5 w-5 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    <div x-show="open === 'utilitas'" x-cloak class="pl-10 bg-gray-800">
+                        <a class="block py-2 px-4 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-100" href="{{ route('admin.backup.index') }}">Backup & Restore</a>
+                    </div>
+                </div>
             </nav>
         </aside>
         
         <div x-show="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 z-30 bg-black opacity-50 lg:hidden"></div>
 
-        <!-- Content -->
-        <div class="relative flex-1 flex flex-col overflow-hidden transition-all duration-300" :class="{'lg:ml-64': isSidebarOpen}">
+        <!-- Content Wrapper -->
+        <div class="flex-1 flex flex-col overflow-hidden transition-all duration-300" :class="{ 'lg:ml-64': isSidebarOpen }">
             <header class="flex justify-between items-center py-4 px-6 bg-white border-b-4 border-indigo-600">
                 <button @click="isSidebarOpen = !isSidebarOpen" class="text-gray-500 focus:outline-none">
                     <svg class="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -108,11 +139,20 @@
                             <img class="h-full w-full object-cover" src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : 'https://placehold.co/100x100/E2E8F0/4A5568?text=A' }}" alt="Avatar">
                         </button>
 
-                        <div x-show="dropdownOpen" @click.away="dropdownOpen = false" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-20">
+                        <div x-show="dropdownOpen" @click.away="dropdownOpen = false" x-cloak 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-20">
+                            
                             <button @click="openProfileModal(); dropdownOpen = false" class="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                 Edit Profile
                             </button>
+                            
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white">

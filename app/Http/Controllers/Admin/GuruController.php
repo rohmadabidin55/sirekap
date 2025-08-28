@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Guru;
 use App\Models\User;
+use App\Imports\GuruImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Exports\GuruTemplateExport;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GuruController extends Controller
 {
@@ -33,6 +36,29 @@ class GuruController extends Controller
         $gurus = $gurusQuery->paginate($perPage)->withQueryString();
 
         return view('admin.guru.index', compact('gurus'));
+    }
+
+    public function exportTemplate()
+    {
+        return Excel::download(new GuruTemplateExport, 'template_import_guru.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate(['file' => 'required|mimes:xlsx,xls,csv']);
+        try {
+            Excel::import(new GuruImport, $request->file('file'));
+            return response()->json(['success' => true, 'message' => 'Data guru berhasil diimpor!']);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+             $failures = $e->failures();
+             $errorMessages = [];
+             foreach ($failures as $failure) {
+                 $errorMessages[] = 'Baris ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+             }
+             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan validasi.', 'errors' => $errorMessages], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
     }
 
     /**

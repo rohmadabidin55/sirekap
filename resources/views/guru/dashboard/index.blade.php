@@ -94,7 +94,10 @@
                                     </select>
                                 </td>
                                 <td class="px-6 py-4 border-b border-gray-200 text-center">
-                                    <input type="number" min="0" max="100" x-model="siswa.nilai_harian" class="w-24 text-center rounded-lg border-gray-300 shadow-sm">
+                                    <input type="number" min="0" max="100" 
+                                           x-model="siswa.nilai_harian"
+                                           @paste.prevent="handlePaste(index, $event)"
+                                           class="w-24 text-center rounded-lg border-gray-300 shadow-sm">
                                 </td>
                             </tr>
                         </template>
@@ -147,6 +150,24 @@
                 } catch (error) { console.error('Gagal mengambil data siswa:', error); } 
                 finally { this.loading = false; }
             },
+
+            // PERBAIKAN: Fungsi baru untuk menangani paste dari Excel
+            handlePaste(startIndex, event) {
+                let pasteData = (event.clipboardData || window.clipboardData).getData('text');
+                let values = pasteData.split(/\r?\n/).filter(v => v.trim() !== '');
+
+                values.forEach((value, i) => {
+                    let targetIndex = startIndex + i;
+                    if (this.siswas[targetIndex]) {
+                        // Pastikan nilai yang ditempel adalah angka dan dalam rentang 0-100
+                        let numericValue = parseInt(value, 10);
+                        if (!isNaN(numericValue) && numericValue >= 0 && numericValue <= 100) {
+                            this.siswas[targetIndex].nilai_harian = numericValue;
+                        }
+                    }
+                });
+            },
+
             async saveAllChanges() {
                 if (this.siswas.length === 0) return;
                 this.saving = true; this.successMessage = '';

@@ -42,6 +42,12 @@
         <!-- Kolom Kanan (Form Login) -->
         <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12">
             <div class="w-full max-w-md">
+                
+                <!-- PERBAIKAN: Logo Sekolah 
+                @if(isset($sekolahSetting) && $sekolahSetting->logo)
+                    <img class="mx-auto h-20 w-auto mb-10" src="{{ asset('storage/' . $sekolahSetting->logo) }}" alt="Logo Sekolah">
+                @endif-->
+
                 <div class="text-center lg:text-left mb-10">
                     <h2 class="text-3xl font-bold text-gray-800">Login Akun</h2>
                     <p class="mt-2 text-gray-500">Masukkan email dan password Anda.</p>

@@ -57,8 +57,13 @@
                     <label for="siswa_nama" class="text-sm">Nama Siswa</label>
                     <input type="text" name="siswa_nama" id="siswa_nama" value="{{ request('siswa_nama') }}" placeholder="Cari nama..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
-                <div class="self-end">
-                    <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Tampilkan Laporan</button>
+                <div class="self-end flex space-x-2">
+                    <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Filter</button>
+                    @if(request()->filled('bulan'))
+                    <a href="{{ route('guru.rekap.anakasuh.pdf', request()->query()) }}" target="_blank" class="w-full flex justify-center items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                        PDF
+                    </a>
+                    @endif
                 </div>
             </div>
         </form>

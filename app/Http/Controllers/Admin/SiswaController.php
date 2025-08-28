@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\User;
 use App\Models\Kelas;
 use App\Models\Siswa;
+use App\Exports\SiswaExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\SiswaTemplateExport;
@@ -47,6 +48,11 @@ class SiswaController extends Controller
         
         $kelas = Kelas::orderBy('nama_kelas')->get();
         return view('admin.siswa.index', compact('siswas', 'kelas'));
+    }
+
+        public function exportExcel()
+    {
+        return Excel::download(new SiswaExport, 'data-siswa-'.date('Y-m-d').'.xlsx');
     }
 
     /**
